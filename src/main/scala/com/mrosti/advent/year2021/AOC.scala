@@ -16,25 +16,46 @@
 
 package com.mrosti.advent.year2021
 
+import cats._
 import cats.effect._
+import cats.effect.kernel._
 import cats.implicits._
 
 import fs2._
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
+import org.http4s._
+import org.http4s.client._
+import org.http4s.implicits._
 
-trait AOC(name: String) {
-  implicit private def unsafeLogger[F[_]: Sync]: Logger[F] = Slf4jLogger.getLogger[F]
+trait AOC(year: String, day: String):
+  def part1[F[_]: Async](input: Stream[F, String]): F[String]
+  def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]]
 
-  def part1[F[_]](input: Stream[F, String]): F[String]
-  def part2[F[_]](input: Stream[F, String]): F[String]
+  private def getInput[F[_]: Async](c: Client[F]): F[List[String]] = 
+    c.stream(Request[F](uri = uri"https://adventofcode.com" / year.toString / "day" / day.toString / "input"))
+    .flatMap(_.body)
+    .through(text.utf8.decode)
+    .through(text.lines)
+    .filterNot(_.isBlank)
+    .compile
+    .toList
+      
 
-  def apply[F[_]: Async](lines: Stream[F, String]): F[Unit] = for {
-    sol1 <- part1(lines)
-    _ <- Logger[F].info(s"$name :: Solution 1: $sol1")
-    sol2 <- part2(lines)
-    _ <- Logger[F].info(s"$name :: Solution 2: $sol2")
-  } yield Sync[F].unit
-}
-
-case class Solution(name: )
+  def apply[F[_]: Async](client: Resource[F, Client[F]]): F[Unit] = client.use(c =>
+      for {
+      logger <- Slf4jLogger.create[F]
+      httpTime <- Sync[F].realTime
+      httpResp <- getInput(c)
+      httpFinish <- Sync[F].realTime
+      input = (Stream[F, String](httpResp: _*))
+      _ <- logger.info(s"$year/$day/input :: ${httpFinish - httpTime}")
+      startTime <- Sync[F].realTime
+      sol1 <- part1(input)
+      finish1 <- Sync[F].realTime
+      _ <- logger.info(s"$year/$day/part1 :: $sol1 in ${finish1 - startTime}")
+      sol2 <- part2(input)
+      finish2 <- Sync[F].realTime
+      _ <- logger.info(s"$year/$day/part2 :: ${sol2.show} in ${finish2 - finish1}")
+    } yield ()
+  )

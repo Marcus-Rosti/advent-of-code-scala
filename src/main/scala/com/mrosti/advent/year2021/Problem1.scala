@@ -22,12 +22,12 @@ import fs2._
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
-object Problem1 extends AOC("Problem 1"):
+object Problem1 extends AOC("2021", "1"):
   private def solve[F[_]: Async](lines: Stream[F, Long]): F[String] =
     lines.sliding(2).filter(c => c.last > c.head).compile.count.map(_.show)
 
-  override def part1[F[_]: Async](input: Stream[F, String]): F[String] = solve(
-    input.map(_.toLong))
+  override def part1[F[_]: Async](input: Stream[F, String]): F[String] = 
+    solve(input.map(_.toLong))
 
-  override def part2[F[_]: Async](input: Stream[F, String]): F[String] = solve(
-    input.map(_.toLong).sliding(3).map(_.sumAll))
+  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] = 
+    solve(input.map(_.toLong).sliding(3).map(_.sumAll)).map(_.pure)
