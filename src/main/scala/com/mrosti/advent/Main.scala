@@ -55,7 +55,8 @@ object Main extends IOApp:
 
 
   def solutions[F[_]: Async](client: Resource[F, Client[F]]): F[Seq[Unit]] = Seq(
-     Problem1(client)
+     Problem1(client),
+     Problem2(client)
   ).parTraverse(identity(_))
 
   override def run(args: List[String]): IO[ExitCode] =
