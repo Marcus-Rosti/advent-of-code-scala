@@ -15,16 +15,86 @@
  */
 
 package com.mrosti.advent
-
+import cats.effect.std.Env
 import cats._
 import cats.effect._
 import cats.syntax.all._
 import fs2._
 import fs2.text
 import fs2.io.file._
+import fs2.io.file.{Path => FPath}
+import org.http4s.ember.client._
+import org.http4s._
+import org.http4s.client._
+import org.http4s.client.middleware.{Logger => CLogger}
+import org.http4s.implicits._
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 
-object ReadInput {
+object ReadInput:
 
-  def apply[F[_]: Async](name: Path): Stream[F, String] =
-    Files[F].readAll(name).through(text.utf8.decode).through(text.lines).filterNot(_.isBlank)
-}
+  def aocUrl(year: String, day: String) =
+    uri"https://adventofcode.com" / year / "day" / day / "input"
+  def inputdirectory(year: String, day: String) = Path(s"./data/$year/day/$day")
+  def inputFile(year: String, day: String) = Path(s"./data/${year}/day/$day/input")
+
+  private def error[F[_]: MonadCancelThrow](path: Path) =
+    MonadCancelThrow[F].raiseError[Stream[F, Byte]](new NoSuchFileException(path.show))
+
+  private def fileIfExists[F[_]: Async](year: String, day: String): F[Stream[F, Byte]] = {
+    for {
+      logger <- Slf4jLogger.create[F]
+      iFile = inputFile(year, day)
+      exists <- Files[F].exists(iFile)
+      ret <- Option.when(exists)(Files[F].readAll(iFile).pure).getOrElse(error(iFile))
+    } yield ret
+  }
+  private def downloadFile[F[_]: Async: Env](year: String, day: String): F[Unit] = {
+    for {
+      maybeToken <- Env[F].get("AOC_TOKEN")
+      token <- Async[F].fromOption(maybeToken, new RuntimeException("No token"))
+      _ <- Files[F].createDirectories(inputdirectory(year, day))
+      _ <- Files[F].createFile(inputFile(year, day))
+      t <- adventClient(token).use(
+        _.stream(Request[F](uri = aocUrl(year, day)))
+          .flatMap(_.body)
+          .through(Files[F].writeAll(inputFile(year, day), Flags.Write))
+          .compile
+          .drain)
+    } yield t
+  }
+
+  private def cacheAndLoadFile[F[_]: Async: Env](
+      year: String,
+      day: String): F[Stream[F, Byte]] =
+    for {
+      logger <- Slf4jLogger.create[F]
+      _ <- logger.debug(s"Downloading file for $year / $day")
+      _ <- downloadFile(year, day)
+      _ <- logger.debug(s"Downloaded file for $year / $day}")
+      f <- fileIfExists(year, day)
+      _ <- logger.debug(s"Returning file for $year / $day")
+    } yield f
+
+  private def addTestHeader[F[_]: MonadCancelThrow](
+      token: String,
+      underlying: Client[F]): Client[F] = Client[F] { req =>
+    underlying.run(
+      req.addCookie("session", token)
+    )
+  }
+
+  private def adventClient[F[_]: Async](token: String): Resource[F, Client[F]] =
+    EmberClientBuilder
+      .default[F]
+      .withMaxTotal(1)
+      .withHttp2
+      .build
+      .map(CLogger(logHeaders = false, logBody = false))
+      .map(addTestHeader(token, _))
+
+  def apply[F[_]: Async: Env](year: String, day: String): Resource[F, Stream[F, String]] = {
+    Resource
+      .make(fileIfExists(year, day).recoverWith(_ => cacheAndLoadFile(year, day)))(_ =>
+        Async[F].unit)
+      .map(_.through(text.utf8.decode).through(text.lines).filterNot(_.isBlank))
+  }

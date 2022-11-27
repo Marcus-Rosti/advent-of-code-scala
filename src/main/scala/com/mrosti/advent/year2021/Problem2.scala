@@ -16,49 +16,44 @@
 
 package com.mrosti.advent.year2021
 
-
 import cats.effect._
 import cats.implicits._
 import fs2._
 
 object Problem2 extends AOC("2021", "2"):
 
-    case class Position(horizontal: Long, depth: Long, aim: Long)
-    object Position:    
-        lazy val start: Position = Position(0,0,0)
+  case class Position(horizontal: Long, depth: Long, aim: Long)
+  object Position:
+    lazy val start: Position = Position(0, 0, 0)
 
-    sealed trait Move
-    case class Forward(x: Long) extends Move
-    case class Down(x: Long) extends Move
-    case class Up(x: Long) extends Move
+  sealed trait Move
+  case class Forward(x: Long) extends Move
+  case class Down(x: Long) extends Move
+  case class Up(x: Long) extends Move
 
-    object Move:
-        def parse(command: String): Option[Move] =
-            command.split(" ") match {
-                case Array("forward" , x: String) => x.toLongOption.map(Forward(_))
-                case Array("down" , x: String) => x.toLongOption.map(Down(_))
-                case Array("up" , x: String) => x.toLongOption.map(Up(_))
-                case _ => None
-            }
-        
-        def apply(p: Position, move: Move): Position = move match
-            case Forward(x) => Position(p.horizontal + x, p.depth + p.aim * x, p.aim)
-            case Down(x) => Position(p.horizontal, p.depth, p.aim + x)
-            case Up(x) => Position(p.horizontal, p.depth, p.aim - x)
-        
+  object Move:
+    def parse(command: String): Option[Move] =
+      command.split(" ") match {
+        case Array("forward", x: String) => x.toLongOption.map(Forward(_))
+        case Array("down", x: String) => x.toLongOption.map(Down(_))
+        case Array("up", x: String) => x.toLongOption.map(Up(_))
+        case _ => None
+      }
 
-    def solve[F[_]: Async](input: Stream[F, String]): F[Position] = 
-        input.map(Move.parse).collect{
-            case Some(value) => value
-        }
-        .compile
-        .fold(Position.start)((p, m) => Move(p, m))
+    def apply(p: Position, move: Move): Position = move match
+      case Forward(x) => Position(p.horizontal + x, p.depth + p.aim * x, p.aim)
+      case Down(x) => Position(p.horizontal, p.depth, p.aim + x)
+      case Up(x) => Position(p.horizontal, p.depth, p.aim - x)
 
-        
+  def solve[F[_]: Async](input: Stream[F, String]): F[Position] =
+    input
+      .map(Move.parse)
+      .collect { case Some(value) => value }
+      .compile
+      .fold(Position.start)((p, m) => Move(p, m))
 
-    override def part1[F[_]: Async](input: Stream[F, String]): F[String] = 
-        solve(input).map(p => p.horizontal * p.aim).map(_.show)
+  override def part1[F[_]: Async](input: Stream[F, String]): F[String] =
+    solve(input).map(p => p.horizontal * p.aim).map(_.show)
 
-    override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] = 
-        solve(input).map(p => p.horizontal * p.depth).map(_.show).map(_.some)
-
+  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] =
+    solve(input).map(p => p.horizontal * p.depth).map(_.show).map(_.some)

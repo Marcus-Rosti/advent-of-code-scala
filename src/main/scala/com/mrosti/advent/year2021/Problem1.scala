@@ -26,8 +26,8 @@ object Problem1 extends AOC("2021", "1"):
   private def solve[F[_]: Async](lines: Stream[F, Long]): F[String] =
     lines.sliding(2).filter(c => c.last > c.head).compile.count.map(_.show)
 
-  override def part1[F[_]: Async](input: Stream[F, String]): F[String] = 
+  override def part1[F[_]: Async](input: Stream[F, String]): F[String] =
     solve(input.map(_.toLong))
 
-  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] = 
+  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] =
     solve(input.map(_.toLong).sliding(3).map(_.sumAll)).map(_.pure)
