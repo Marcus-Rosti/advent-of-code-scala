@@ -15,6 +15,7 @@
  */
 
 package com.mrosti.advent
+
 import cats.effect.std.Env
 import cats._
 import cats.effect._
@@ -43,6 +44,7 @@ object ReadInput:
   private def fileIfExists[F[_]: Async](year: String, day: String): F[Stream[F, Byte]] = {
     for {
       logger <- Slf4jLogger.create[F]
+      _ <- logger.info(s"Loading from file $year / $day")
       iFile = inputFile(year, day)
       exists <- Files[F].exists(iFile)
       ret <- Option.when(exists)(Files[F].readAll(iFile).pure).getOrElse(error(iFile))
@@ -68,11 +70,11 @@ object ReadInput:
       day: String): F[Stream[F, Byte]] =
     for {
       logger <- Slf4jLogger.create[F]
-      _ <- logger.debug(s"Downloading file for $year / $day")
+      _ <- logger.trace(s"Downloading file for $year / $day")
       _ <- downloadFile(year, day)
-      _ <- logger.debug(s"Downloaded file for $year / $day}")
+      _ <- logger.trace(s"Downloaded file for $year / $day}")
       f <- fileIfExists(year, day)
-      _ <- logger.debug(s"Returning file for $year / $day")
+      _ <- logger.trace(s"Returning file for $year / $day")
     } yield f
 
   private def addTestHeader[F[_]: MonadCancelThrow](
