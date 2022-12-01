@@ -23,14 +23,12 @@ import cats.effect.IO._
 import cats.effect.std.Env
 
 import org.typelevel.log4cats.slf4j._
-import com.mrosti.advent.year2021._
+import com.mrosti.advent.year2022._
 
 object Main extends IOApp:
 
   val solutions: IO[Seq[Unit]] = Seq(
-    Problem1(),
-    Problem2(),
-    Problem3()
+    Problem1()
   ).traverse(identity(_))
 
   override def run(args: List[String]): IO[ExitCode] =

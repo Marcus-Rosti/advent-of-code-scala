@@ -95,5 +95,5 @@ object ReadInput:
     Resource
       .make(fileIfExists(year, day).recoverWith(_ => cacheAndLoadFile(year, day)))(_ =>
         Async[F].unit)
-      .map(_.through(text.utf8.decode).through(text.lines).filterNot(_.isBlank))
+      .map(_.through(text.utf8.decode).through(text.lines).dropLast)
   }
