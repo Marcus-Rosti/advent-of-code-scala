@@ -41,7 +41,7 @@ lazy val `advent-of-code` = (project in file("."))
       // Log
       "org.typelevel" %% "log4cats-core" % "2.5.0",
       "org.typelevel" %% "log4cats-slf4j" % "2.5.0",
-      "ch.qos.logback" % "logback-classic" % "1.4.5" % Runtime,
+      "ch.qos.logback" % "logback-classic" % "1.4.5",
       "org.slf4j" % "slf4j-api" % "2.0.5",
       // "org.slf4j" % "slf4j-simple" % "2.0.5",
       "org.fusesource.jansi" % "jansi" % "2.4.0",
