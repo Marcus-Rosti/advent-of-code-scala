@@ -30,7 +30,7 @@ object Problem1 extends AOC("2022", "1"):
       .map(_.map(_.toLong).foldLeft(0L)(_ + _))
       .compile
       .toList
-      .map(_.sorted.reverse.take(topK).sum.show)
+      .map(_.sorted(Ordering[Long].reverse).take(topK).sum.show)
 
   override def part1[F[_]: Async](input: Stream[F, String]): F[String] =
     solution(input, 1)
