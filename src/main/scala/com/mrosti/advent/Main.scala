@@ -22,26 +22,23 @@ import cats.effect.implicits._
 import cats.effect.IO._
 import cats.effect.std.Env
 
-import org.typelevel.log4cats.Logger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
-import fs2._
-
-import fs2.io.file._
+import org.typelevel.log4cats.slf4j._
 import com.mrosti.advent.year2021._
-import org.typelevel.ci._
 
 object Main extends IOApp:
 
-  def solutions[F[_]: Async: Env]: F[Seq[Unit]] = Seq(
+  val solutions: IO[Seq[Unit]] = Seq(
     Problem1(),
     Problem2(),
     Problem3()
-  ).parTraverse(identity(_))
+  ).traverse(identity(_))
 
   override def run(args: List[String]): IO[ExitCode] =
     for {
-      logger <- Slf4jLogger.create[IO]
+      logger <- Slf4jFactory.create[IO]
+      startTime <- Clock[IO].realTime
       _ <- logger.info("Starting!")
       ans <- solutions
-      _ <- logger.info("Finished!")
+      finish <- Clock[IO].realTime
+      _ <- logger.info(s"Finished!! in ${finish - startTime}")
     } yield ExitCode.Success

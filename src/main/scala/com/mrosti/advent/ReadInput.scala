@@ -33,10 +33,10 @@ import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 object ReadInput:
 
-  def aocUrl(year: String, day: String) =
+  private def aocUrl(year: String, day: String) =
     uri"https://adventofcode.com" / year / "day" / day / "input"
-  def inputdirectory(year: String, day: String) = Path(s"./data/$year/day/$day")
-  def inputFile(year: String, day: String) = Path(s"./data/${year}/day/$day/input")
+  private def inputdirectory(year: String, day: String) = Path(s"./data/$year/day/$day")
+  private def inputFile(year: String, day: String) = Path(s"./data/${year}/day/$day/input")
 
   private def error[F[_]: MonadCancelThrow](path: Path) =
     MonadCancelThrow[F].raiseError[Stream[F, Byte]](new NoSuchFileException(path.show))
@@ -44,26 +44,25 @@ object ReadInput:
   private def fileIfExists[F[_]: Async](year: String, day: String): F[Stream[F, Byte]] = {
     for {
       logger <- Slf4jLogger.create[F]
-      _ <- logger.info(s"Loading from file $year / $day")
+      _ <- logger.debug(s"Loading from file $year / $day")
       iFile = inputFile(year, day)
       exists <- Files[F].exists(iFile)
       ret <- Option.when(exists)(Files[F].readAll(iFile).pure).getOrElse(error(iFile))
     } yield ret
   }
-  private def downloadFile[F[_]: Async: Env](year: String, day: String): F[Unit] = {
+  private def downloadFile[F[_]: Async: Env](year: String, day: String): F[Unit] =
     for {
       maybeToken <- Env[F].get("AOC_TOKEN")
       token <- Async[F].fromOption(maybeToken, new RuntimeException("No token"))
       _ <- Files[F].createDirectories(inputdirectory(year, day))
       _ <- Files[F].createFile(inputFile(year, day))
-      t <- adventClient(token).use(
+      _ <- adventClient(token).use(
         _.stream(Request[F](uri = aocUrl(year, day)))
           .flatMap(_.body)
           .through(Files[F].writeAll(inputFile(year, day), Flags.Write))
           .compile
           .drain)
-    } yield t
-  }
+    } yield ()
 
   private def cacheAndLoadFile[F[_]: Async: Env](
       year: String,
@@ -72,7 +71,7 @@ object ReadInput:
       logger <- Slf4jLogger.create[F]
       _ <- logger.trace(s"Downloading file for $year / $day")
       _ <- downloadFile(year, day)
-      _ <- logger.trace(s"Downloaded file for $year / $day}")
+      _ <- logger.trace(s"Downloaded file for $year / $day")
       f <- fileIfExists(year, day)
       _ <- logger.trace(s"Returning file for $year / $day")
     } yield f
@@ -88,8 +87,6 @@ object ReadInput:
   private def adventClient[F[_]: Async](token: String): Resource[F, Client[F]] =
     EmberClientBuilder
       .default[F]
-      .withMaxTotal(1)
-      .withHttp2
       .build
       .map(CLogger(logHeaders = false, logBody = false))
       .map(addTestHeader(token, _))

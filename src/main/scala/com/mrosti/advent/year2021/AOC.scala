@@ -23,11 +23,12 @@ import cats.effect.std.Env
 import cats.implicits._
 
 import fs2._
-import org.typelevel.log4cats.Logger
-import org.typelevel.log4cats.slf4j.Slf4jLogger
+import org.typelevel.log4cats.slf4j._
+import org.typelevel.log4cats.syntax._
 import org.http4s._
 import org.http4s.client._
 import org.http4s.implicits._
+import scala.concurrent.duration._
 
 import com.mrosti.advent.ReadInput
 
@@ -40,13 +41,12 @@ trait AOC(year: String, day: String):
   def apply[F[_]: Async: Env](): F[Unit] = file.use { input =>
     for {
       logger <- Slf4jLogger.create[F]
-      startTime <- Sync[F].realTime
+      startTime <- Clock[F].realTime
       sol1 <- part1(input)
-      finish1 <- Sync[F].realTime
+      finish1 <- Clock[F].realTime
       _ <- logger.info(s"$year/$day/part1 :: $sol1 in ${finish1 - startTime}")
       sol2 <- part2(input)
-      finish2 <- Sync[F].realTime
-      _ <- logger.info(s"$year/$day/part2 :: ${sol2.show} in ${finish2 - finish1}")
+      finish2 <- Clock[F].realTime
+      _ <- logger.info(s"$year/$day/part2 :: ${sol2.show} in ${(finish2 - finish1).show}")
     } yield ()
   }
-

@@ -9,7 +9,7 @@ ThisBuild / scalaVersion := "3.2.1"
 
 val fs2Version = "3.3.0"
 val catsVersion = "2.9.0"
-val catsEffectVersion = "3.4.0"
+val catsEffectVersion = "3.4.2"
 val http4sVersion = "1.0.0-M37"
 
 lazy val `advent-of-code` = (project in file(".")).settings(
@@ -17,7 +17,6 @@ lazy val `advent-of-code` = (project in file(".")).settings(
   scalacOptions := Seq("-explain"),
   Compile / mainClass := Some("com.mrosti.advent.Main"),
   libraryDependencies ++= Seq(
-
     // Cats
     "org.typelevel" %% "cats-effect" % catsEffectVersion,
     "org.typelevel" %% "cats-core" % catsVersion,
@@ -31,12 +30,12 @@ lazy val `advent-of-code` = (project in file(".")).settings(
     "org.http4s" %% "http4s-client" % http4sVersion,
     "org.http4s" %% "http4s-ember-client" % http4sVersion,
 
-
     // Log
-    "ch.qos.logback" % "logback-classic" % "1.0.13",
     "org.typelevel" %% "log4cats-core" % "2.5.0",
     "org.typelevel" %% "log4cats-slf4j" % "2.5.0",
-    "org.slf4j" % "slf4j-api" % "2.0.3",
-    "org.slf4j" % "slf4j-simple" % "2.0.3"
+    "ch.qos.logback" % "logback-classic" % "1.4.5",
+    "org.slf4j" % "slf4j-api" % "2.0.5",
+    "org.fusesource.jansi" % "jansi" % "2.4.0"
+    // "org.slf4j" % "slf4j-simple" % "2.0.5"
   )
 )
