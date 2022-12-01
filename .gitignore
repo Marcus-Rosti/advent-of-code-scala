@@ -169,5 +169,5 @@ project/**/metals.sbt
 
 # End of https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode,scala,sbt,bloop
 
-
+.vscode
 .token
