@@ -16,6 +16,7 @@
 
 package com.mrosti.advent.year2021
 
+import com.mrosti.advent.AOC
 import cats.effect._
 import cats.implicits._
 import fs2._

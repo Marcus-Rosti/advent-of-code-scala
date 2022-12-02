@@ -28,7 +28,8 @@ import com.mrosti.advent.year2022._
 object Main extends IOApp:
 
   val solutions: IO[Seq[Unit]] = Seq(
-    Problem1()
+    Problem1(),
+    Problem2()
   ).traverse(identity(_))
 
   override def run(args: List[String]): IO[ExitCode] =

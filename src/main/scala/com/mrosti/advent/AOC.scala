@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.mrosti.advent.year2021
+package com.mrosti.advent
 
 import cats._
 import cats.effect._
