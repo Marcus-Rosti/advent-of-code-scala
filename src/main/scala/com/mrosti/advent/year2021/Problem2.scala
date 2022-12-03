@@ -29,22 +29,22 @@ object Problem2 extends AOC("2021", "2"):
 
   sealed trait Move
   case class Forward(x: Long) extends Move
-  case class Down(x: Long) extends Move
-  case class Up(x: Long) extends Move
+  case class Down(x: Long)    extends Move
+  case class Up(x: Long)      extends Move
 
   object Move:
     def parse(command: String): Option[Move] =
       command.split(" ") match {
         case Array("forward", x: String) => x.toLongOption.map(Forward(_))
-        case Array("down", x: String) => x.toLongOption.map(Down(_))
-        case Array("up", x: String) => x.toLongOption.map(Up(_))
-        case _ => None
+        case Array("down", x: String)    => x.toLongOption.map(Down(_))
+        case Array("up", x: String)      => x.toLongOption.map(Up(_))
+        case _                           => None
       }
 
     def apply(p: Position, move: Move): Position = move match
       case Forward(x) => Position(p.horizontal + x, p.depth + p.aim * x, p.aim)
-      case Down(x) => Position(p.horizontal, p.depth, p.aim + x)
-      case Up(x) => Position(p.horizontal, p.depth, p.aim - x)
+      case Down(x)    => Position(p.horizontal, p.depth, p.aim + x)
+      case Up(x)      => Position(p.horizontal, p.depth, p.aim - x)
 
   def solve[F[_]: Async](input: Stream[F, String]): F[Position] =
     input

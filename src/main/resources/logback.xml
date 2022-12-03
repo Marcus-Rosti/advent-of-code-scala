@@ -8,10 +8,10 @@
         </encoder>
     </appender>
 
-    <logger name="com.mrosti.advent" level="TRACE"/>
+    <logger name="com.mrosti.advent" level="INFO"/>
 
-    <root level="TRACE">
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
     </root>
-    <logger name="org.http4s.client.middleware" level="TRACE"/>
+    <logger name="org.http4s.client.middleware" level="INFO"/>
 </configuration>

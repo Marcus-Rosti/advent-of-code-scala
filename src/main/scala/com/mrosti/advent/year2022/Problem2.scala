@@ -17,33 +17,45 @@
 package com.mrosti.advent.year2022
 
 import com.mrosti.advent.AOC
-import cats.Order
+import cats._
 import cats.implicits._
 import cats.effect.kernel._
 import fs2._
+import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 object Problem2 extends AOC("2022", "2"):
 
   sealed trait Play
-  case object Rock extends Play
-  case object Paper extends Play
+  case object Rock     extends Play
+  case object Paper    extends Play
   case object Scissors extends Play
+
+  final case class Round(them: Play, you: Play)
+
+  given Show[Play] = new Show[Play] {
+    def show(p: Play): String = p match
+      case Rock     => "Rock"
+      case Paper    => "Paper"
+      case Scissors => "Scissors"
+  }
+
+  given Show[Round] = (t: Round) => t.them.show + " vs " + t.you.show
 
   given Order[Play] = new Order[Play]:
     def compare(them: Play, you: Play): Int =
       (them, you) match
-        case (Rock, Paper) => 6
-        case (Rock, Scissors) => 0
-        case (Paper, Rock) => 0
+        case (Rock, Paper)     => 6
         case (Paper, Scissors) => 6
-        case (Scissors, Rock) => 6
+        case (Scissors, Rock)  => 6
+        case (Rock, Scissors)  => 0
+        case (Paper, Rock)     => 0
         case (Scissors, Paper) => 0
-        case _ => 3
+        case _                 => 3
 
   object PlayValue:
     def apply(p: Play): Int = p match
-      case Rock => 1
-      case Paper => 2
+      case Rock     => 1
+      case Paper    => 2
       case Scissors => 3
 
   object Play:
@@ -52,8 +64,6 @@ object Problem2 extends AOC("2022", "2"):
         case "A" | "X" => Rock
         case "B" | "Y" => Paper
         case "C" | "Z" => Scissors
-
-  final case class Round(them: Play, you: Play)
 
   object Score:
     def apply(round: Round): Int =
@@ -66,20 +76,20 @@ object Problem2 extends AOC("2022", "2"):
         // lose
         case "X" =>
           Play(them) match
-            case Rock => Score(Round(Rock, Scissors))
-            case Paper => Score(Round(Paper, Rock))
+            case Rock     => Score(Round(Rock, Scissors))
+            case Paper    => Score(Round(Paper, Rock))
             case Scissors => Score(Round(Scissors, Paper))
         // draw
         case "Y" =>
           Play(them) match
-            case Rock => Score(Round(Rock, Rock))
-            case Paper => Score(Round(Paper, Paper))
+            case Rock     => Score(Round(Rock, Rock))
+            case Paper    => Score(Round(Paper, Paper))
             case Scissors => Score(Round(Scissors, Scissors))
         // win
         case "Z" =>
           Play(them) match
-            case Rock => Score(Round(Rock, Paper))
-            case Paper => Score(Round(Paper, Scissors))
+            case Rock     => Score(Round(Rock, Paper))
+            case Paper    => Score(Round(Paper, Scissors))
             case Scissors => Score(Round(Scissors, Rock))
 
   override def part1[F[_]: Async](input: Stream[F, String]): F[String] =

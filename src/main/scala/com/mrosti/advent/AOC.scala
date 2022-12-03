@@ -40,13 +40,13 @@ trait AOC(year: String, day: String):
 
   def apply[F[_]: Async: Env](): F[Unit] = file.use { input =>
     for {
-      logger <- Slf4jLogger.create[F]
+      logger    <- Slf4jLogger.create[F]
       startTime <- Clock[F].realTime
-      sol1 <- part1(input)
-      finish1 <- Clock[F].realTime
-      _ <- logger.info(s"$year/$day/part1 :: $sol1 in ${finish1 - startTime}")
-      sol2 <- part2(input)
-      finish2 <- Clock[F].realTime
+      sol1      <- part1(input)
+      finish1   <- Clock[F].realTime
+      _         <- logger.info(s"$year/$day/part1 :: $sol1 in ${finish1 - startTime}")
+      sol2      <- part2(input)
+      finish2   <- Clock[F].realTime
       _ <- logger.info(s"$year/$day/part2 :: ${sol2.show} in ${(finish2 - finish1).show}")
     } yield ()
   }

@@ -34,10 +34,10 @@ object Main extends IOApp:
 
   override def run(args: List[String]): IO[ExitCode] =
     for {
-      logger <- Slf4jFactory.create[IO]
+      logger    <- Slf4jFactory.create[IO]
       startTime <- Clock[IO].realTime
-      _ <- logger.info("Starting!")
-      ans <- solutions
-      finish <- Clock[IO].realTime
-      _ <- logger.info(s"Finished!! in ${finish - startTime}")
+      _         <- logger.info("Starting!")
+      ans       <- solutions
+      finish    <- Clock[IO].realTime
+      _         <- logger.info(s"Finished!! in ${finish - startTime}")
     } yield ExitCode.Success
