@@ -29,7 +29,8 @@ object Main extends IOApp:
 
   val solutions: IO[Seq[Unit]] = Seq(
     Problem1(),
-    Problem2()
+    Problem2(),
+    Problem3()
   ).traverse(identity(_))
 
   override def run(args: List[String]): IO[ExitCode] =
