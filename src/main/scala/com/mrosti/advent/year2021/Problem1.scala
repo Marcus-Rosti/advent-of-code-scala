@@ -17,9 +17,9 @@
 package com.mrosti.advent.year2021
 
 import com.mrosti.advent.AOC
-import cats.effect._
-import cats.implicits._
-import fs2._
+import cats.effect.*
+import cats.implicits.*
+import fs2.*
 import org.typelevel.log4cats.Logger
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 

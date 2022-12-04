@@ -17,18 +17,18 @@
 package com.mrosti.advent
 
 import cats.effect.std.Env
-import cats._
-import cats.effect._
-import cats.syntax.all._
-import fs2._
+import cats.*
+import cats.effect.*
+import cats.syntax.all.*
+import fs2.*
 import fs2.text
-import fs2.io.file._
-import fs2.io.file.{Path => FPath}
-import org.http4s.ember.client._
-import org.http4s._
-import org.http4s.client._
-import org.http4s.client.middleware.{Logger => CLogger}
-import org.http4s.implicits._
+import fs2.io.file.*
+import fs2.io.file.{Path as FPath}
+import org.http4s.ember.client.*
+import org.http4s.*
+import org.http4s.client.*
+import org.http4s.client.middleware.{Logger as CLogger}
+import org.http4s.implicits.*
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 object ReadInput:

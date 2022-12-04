@@ -17,9 +17,9 @@
 package com.mrosti.advent.year2022
 
 import com.mrosti.advent.AOC
-import cats.implicits._
-import cats.effect.kernel._
-import fs2._
+import cats.implicits.*
+import cats.effect.kernel.*
+import fs2.*
 
 object Problem1 extends AOC("2022", "1"):
 

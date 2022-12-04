@@ -16,7 +16,7 @@ lazy val `advent-of-code` = (project in file("."))
   .enablePlugins(GraalVMNativeImagePlugin)
   .settings(
     name := "advent-of-code",
-    scalacOptions := Seq("-explain"),
+    scalacOptions := Seq("-explain","-source:future"),
     Compile / mainClass := Some("com.mrosti.advent.Main"),
     graalVMNativeImageGraalVersion := Some("22.3.0"),
     graalVMNativeImageOptions ++= Seq(

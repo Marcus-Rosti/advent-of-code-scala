@@ -16,21 +16,23 @@
 
 package com.mrosti.advent
 
-import cats._
-import cats.effect._
-import cats.effect.kernel._
+import cats.*
+import cats.effect.*
+import cats.effect.implicits.*
+import cats.effect.kernel.*
 import cats.effect.std.Env
-import cats.implicits._
+import cats.implicits.*
 
-import fs2._
-import org.typelevel.log4cats.slf4j._
-import org.typelevel.log4cats.syntax._
-import org.http4s._
-import org.http4s.client._
-import org.http4s.implicits._
-import scala.concurrent.duration._
+import fs2.*
+import org.typelevel.log4cats.slf4j.*
+import org.typelevel.log4cats.syntax.*
+import org.http4s.*
+import org.http4s.client.*
+import org.http4s.implicits.*
+import scala.concurrent.duration.*
 
 import com.mrosti.advent.ReadInput
+import org.typelevel.log4cats.Logger
 
 trait AOC(year: String, day: String):
   def file[F[_]: Async: Env]: Resource[F, Stream[F, String]] = ReadInput(year, day)
@@ -38,15 +40,16 @@ trait AOC(year: String, day: String):
   def part1[F[_]: Async](input: Stream[F, String]): F[String]
   def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]]
 
-  def apply[F[_]: Async: Env](): F[Unit] = file.use { input =>
-    for {
-      logger    <- Slf4jLogger.create[F]
-      startTime <- Clock[F].realTime
-      sol1      <- part1(input)
-      finish1   <- Clock[F].realTime
-      _         <- logger.info(s"$year/$day/part1 :: $sol1 in ${finish1 - startTime}")
-      sol2      <- part2(input)
-      finish2   <- Clock[F].realTime
-      _ <- logger.info(s"$year/$day/part2 :: ${sol2.show} in ${(finish2 - finish1).show}")
-    } yield ()
-  }
+  def runAndTime[F[_]: Async, B: Show](fSol: F[B], part: String) = for {
+      logger <- Slf4jLogger.create[F]
+      (finish, sol) <- Clock[F].timed(fSol)
+        _ <- logger.info(s"$year/$day/$part :: ${sol.show} in ${finish.toMillis}ms")
+      } yield ()
+  def both[F[_]: Async](input: Stream[F, String]): F[Unit] = 
+    Seq(
+      runAndTime(part1(input), "part1"),
+      runAndTime(part2(input), "part2")
+      )
+      .sequence
+      .map(_ => Async[F].unit)
+  def apply[F[_]: Async: Env](): F[Unit] = file.use(both)

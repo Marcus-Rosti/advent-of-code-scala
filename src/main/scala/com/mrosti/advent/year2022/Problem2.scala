@@ -17,10 +17,10 @@
 package com.mrosti.advent.year2022
 
 import com.mrosti.advent.AOC
-import cats._
-import cats.implicits._
-import cats.effect.kernel._
-import fs2._
+import cats.*
+import cats.implicits.*
+import cats.effect.kernel.*
+import fs2.*
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 object Problem2 extends AOC("2022", "2"):

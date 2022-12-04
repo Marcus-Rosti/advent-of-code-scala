@@ -16,14 +16,15 @@
 
 package com.mrosti.advent
 
-import cats.implicits._
-import cats.effect._
-import cats.effect.implicits._
-import cats.effect.IO._
+import cats.implicits.*
+import cats.effect.*
+import cats.effect.implicits.*
+import cats.effect.IO.*
 import cats.effect.std.Env
 
-import org.typelevel.log4cats.slf4j._
-import com.mrosti.advent.year2022._
+import org.typelevel.log4cats.slf4j.*
+import com.mrosti.advent.year2022.*
+import scala.concurrent.duration
 
 object Main extends IOApp:
 
@@ -36,9 +37,7 @@ object Main extends IOApp:
   override def run(args: List[String]): IO[ExitCode] =
     for {
       logger    <- Slf4jFactory.create[IO]
-      startTime <- Clock[IO].realTime
       _         <- logger.info("Starting!")
-      ans       <- solutions
-      finish    <- Clock[IO].realTime
-      _         <- logger.info(s"Finished!! in ${finish - startTime}")
+      (time, _) <- Clock[IO].timed(solutions)
+      _         <- logger.info(s"Finished!! in ${time.toMillis}ms")
     } yield ExitCode.Success
