@@ -26,18 +26,21 @@ import org.typelevel.log4cats.slf4j.*
 import com.mrosti.advent.year2022.*
 import scala.concurrent.duration
 
-object Main extends IOApp:
+object Main extends IOApp.Simple:
 
   val solutions: IO[Seq[Unit]] = Seq(
     Problem1(),
     Problem2(),
-    Problem3()
+    Problem3(),
+    Problem4(),
+        Problem5()
+
   ).traverse(identity(_))
 
-  override def run(args: List[String]): IO[ExitCode] =
+  override def run: IO[Unit] =
     for {
       logger    <- Slf4jFactory.create[IO]
       _         <- logger.info("Starting!")
       (time, _) <- Clock[IO].timed(solutions)
       _         <- logger.info(s"Finished!! in ${time.toMillis}ms")
-    } yield ExitCode.Success
+    } yield ()

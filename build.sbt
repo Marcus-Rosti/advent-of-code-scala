@@ -13,11 +13,17 @@ val catsEffectVersion = "3.4.2"
 val http4sVersion = "1.0.0-M37"
 
 lazy val `advent-of-code` = (project in file("."))
-  .enablePlugins(GraalVMNativeImagePlugin)
+  .enablePlugins(GraalVMNativeImagePlugin, NativeImagePlugin)
   .settings(
     name := "advent-of-code",
     scalacOptions := Seq("-explain","-source:future"),
     Compile / mainClass := Some("com.mrosti.advent.Main"),
+    nativeImageOptions ++= Seq(
+      "--no-fallback",
+      "--initialize-at-build-time=org.slf4j,ch.qos.logback",
+      "-H:+ReportExceptionStackTraces",
+    ),
+    nativeImageVersion  := "22.3.0",
     graalVMNativeImageGraalVersion := Some("22.3.0"),
     graalVMNativeImageOptions ++= Seq(
       "--no-fallback",
@@ -28,6 +34,7 @@ lazy val `advent-of-code` = (project in file("."))
       // Cats
       "org.typelevel" %% "cats-effect" % catsEffectVersion,
       "org.typelevel" %% "cats-core" % catsVersion,
+      "org.typelevel" %% "cats-parse" % "0.3.8",
 
       // Streaming
       "co.fs2" %% "fs2-core" % fs2Version,
