@@ -49,7 +49,9 @@ object Problem3 extends AOC("2022", "3"):
     .map(_.show)
 
   override def part1[F[_]: Async](input: Stream[F, String]): F[String] =
-    solve(input.flatMap(rucksack => Stream.emits(rucksack.splitAt(rucksack.length() / 2).toList)), 2)
+    solve(
+      input.flatMap(rucksack => Stream.emits(rucksack.splitAt(rucksack.length() / 2).toList)),
+      2)
 
   override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] =
     solve(input, 3).map(_.pure)

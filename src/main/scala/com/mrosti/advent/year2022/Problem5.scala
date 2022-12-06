@@ -30,16 +30,16 @@ import scala.annotation.tailrec
 
 object Problem5 extends AOC("2022", "5"):
 
-  type Stack = Seq[Char]
+  type Stack     = Seq[Char]
   type SwapStack = (Stack, Stack, Int) => (Stack, Stack)
 
   final case class Move(amount: Int, from: Int, to: Int)
   object Move:
     val reg = raw"move (\d+) from (\d+) to (\d+)".r
     def apply(str: String): Option[Move] =
-      str match 
-        case reg(a,b,c) => Option(Move(a.toInt,b.toInt,c.toInt))
-        case _ => Option.empty
+      str match
+        case reg(a, b, c) => Option(Move(a.toInt, b.toInt, c.toInt))
+        case _            => Option.empty
 
   @tailrec
   def part1Swap(fromStack: Stack, toStack: Stack, amount: Int): (Stack, Stack) =
@@ -49,40 +49,51 @@ object Problem5 extends AOC("2022", "5"):
   def part2Swap(fromStack: Stack, toStack: Stack, amount: Int): (Stack, Stack) =
     (fromStack.drop(amount), fromStack.take(amount) ++ toStack)
 
+  def applyStep(step: SwapStack)(initialState: Map[Int, Stack], move: Move): Map[Int, Stack] =
+    (for {
+      fromStack <- initialState.get(move.from)
+      toStack   <- initialState.get(move.to)
+      (newFromStack, newToStack) = step(fromStack, toStack, move.amount)
+    } yield initialState + (move.from -> newFromStack) + (move.to -> newToStack))
+      .getOrElse(Map.empty)
 
-  def applyStep(step: SwapStack)(initialState: Map[Int, Stack], move: Move): Map[Int, Stack] = (for {
-    fromStack <- initialState.get(move.from)
-    toStack <- initialState.get(move.to)
-    (newFromStack, newToStack) = step(fromStack, toStack, move.amount)
-  } yield initialState + (move.from -> newFromStack) + (move.to -> newToStack)).getOrElse(Map.empty)
-
-  def applyAllSteps(step: SwapStack)(initialState: Map[Int, Stack]): Seq[Move] => Map[Int, Stack] = 
+  def applyAllSteps(step: SwapStack)(
+      initialState: Map[Int, Stack]): Seq[Move] => Map[Int, Stack] =
     _.foldl(initialState)(applyStep(step))
-
 
   val regex = raw"""(\[[A-Z]\] ?|(   ) ?)""".r
   def parseInput(header: Seq[String], footer: Seq[String]): (Map[Int, Stack], Seq[Move]) = {
     val matches = header.map(regex.findAllMatchIn(_).toSeq.map(_.toString.strip))
-    val stacks = matches.map(_.map(
-      _.toCharArray match
-        case Array('[', a, ']') => a
-        case _ => ' '
-     ))
-    val initialState = stacks.transpose.map(_.filterNot(_.isWhitespace))
-    .zipWithIndex.map((c, i) => (i+1, c)).toMap
-    
+    val stacks = matches.map(
+      _.map(
+        _.toCharArray match
+          case Array('[', a, ']') => a
+          case _                  => ' '
+      ))
+    val initialState = stacks
+      .transpose
+      .map(_.filterNot(_.isWhitespace))
+      .zipWithIndex
+      .map((c, i) => (i + 1, c))
+      .toMap
+
     (initialState, footer.flatMap(Move(_)))
   }
-  override def part1[F[_]: Async](input: Stream[F, String]): F[String] = 
+  override def part1[F[_]: Async](input: Stream[F, String]): F[String] =
     for {
       h <- input.take(8).compile.toList
       f <- input.drop(10).compile.toList
       (ini, mov) = parseInput(h, f)
     } yield applyAllSteps(part1Swap)(ini)(mov).toSeq.sortBy(_._1).map(_._2).map(_.head).mkString
 
-  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] =    for {
-      h <- input.take(8).compile.toList
-      f <- input.drop(10).compile.toList
-      (ini, mov) = parseInput(h, f)
-    } yield applyAllSteps(part2Swap)(ini)(mov).toSeq.sortBy(_._1).map(_._2).map(_.head).mkString.pure
-
+  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] = for {
+    h <- input.take(8).compile.toList
+    f <- input.drop(10).compile.toList
+    (ini, mov) = parseInput(h, f)
+  } yield applyAllSteps(part2Swap)(ini)(mov)
+    .toSeq
+    .sortBy(_._1)
+    .map(_._2)
+    .map(_.head)
+    .mkString
+    .pure

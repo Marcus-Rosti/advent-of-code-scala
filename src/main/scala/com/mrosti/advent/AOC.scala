@@ -41,15 +41,13 @@ trait AOC(year: String, day: String):
   def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]]
 
   def runAndTime[F[_]: Async, B: Show](fSol: F[B], part: String) = for {
-      logger <- Slf4jLogger.create[F]
-      (finish, sol) <- Clock[F].timed(fSol)
-        _ <- logger.info(s"$year/$day/$part :: ${sol.show} in ${finish.toMillis}ms")
-      } yield ()
-  def both[F[_]: Async](input: Stream[F, String]): F[Unit] = 
+    logger        <- Slf4jLogger.create[F]
+    (finish, sol) <- Clock[F].timed(fSol)
+    _             <- logger.info(s"$year/$day/$part :: ${sol.show} in ${finish.toMillis}ms")
+  } yield ()
+  def both[F[_]: Async](input: Stream[F, String]): F[Unit] =
     Seq(
       runAndTime(part1(input), "part1"),
       runAndTime(part2(input), "part2")
-      )
-      .sequence
-      .map(_ => Async[F].unit)
+    ).sequence.map(_ => Async[F].unit)
   def apply[F[_]: Async: Env](): F[Unit] = file.use(both)

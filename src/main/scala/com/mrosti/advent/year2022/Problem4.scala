@@ -26,27 +26,21 @@ object Problem4 extends AOC("2022", "4"):
 
   object ParseRange:
     def apply(range: String): Set[Int] =
-        range
-        .split("-")
-        .map(_.toInt) match
-          case Array(a: Int, b: Int) => Seq.range(a, b+1).toSet
-  
-  private def sol[F[_]: Async, A](func: ((Set[Int], Set[Int])) => Boolean)(input: Stream[F, String]) =
+      range.split("-").map(_.toInt) match
+        case Array(a: Int, b: Int) => Seq.range(a, b + 1).toSet
+
+  private def sol[F[_]: Async, A](func: ((Set[Int], Set[Int])) => Boolean)(
+      input: Stream[F, String]) =
     input
       .map(_.split(",").map(ParseRange(_)))
-      .collect{
-        case Array(a: Set[Int], b: Set[Int]) => (a, b)
-      }
+      .collect { case Array(a: Set[Int], b: Set[Int]) => (a, b) }
       .filter(func)
       .compile
       .count
       .map(_.show)
-      
 
-  override def part1[F[_]: Async](input: Stream[F, String]): F[String] = 
-    sol((a,b) => a.subsetOf(b) || b.subsetOf(a))(input)
+  override def part1[F[_]: Async](input: Stream[F, String]): F[String] =
+    sol((a, b) => a.subsetOf(b) || b.subsetOf(a))(input)
 
-        
-
-  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] =    
-    sol((a,b) => a.intersect(b).nonEmpty)(input).map(_.pure)
+  override def part2[F[_]: Async](input: Stream[F, String]): F[Option[String]] =
+    sol((a, b) => a.intersect(b).nonEmpty)(input).map(_.pure)
