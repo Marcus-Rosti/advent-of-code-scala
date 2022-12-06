@@ -24,27 +24,13 @@ import fs2.*
 import cats.Applicative
 object Problem6 extends AOC("2022", "6"):
 
-  // https://stackoverflow.com/questions/58193156/interleave-multiple-streams
-  def zipAll[F[_], A](streams: Seq[Stream[F, A]]): Stream[F, A] =
-    streams
-      .foldLeft[Stream[F, Seq[Option[A]]]](Stream.empty) { (acc, s) =>
-        zipStreams(acc, s)
-      }
-      .flatMap(l => Stream.emits(l.reverse.flatten))
-
-  def zipStreams[F[_], A](s1: Stream[F, Seq[Option[A]]], s2: Stream[F, A]): Stream[F, Seq[Option[A]]] =
-    s1.zipAllWith(s2.map(Option(_)))(Nil, Option.empty[A]) { case (acc, a) => a +: acc }
-
-  def getChunks[F[_]](stream: Stream[F, Char], windowSize: Int): Stream[F, Chunk[Char]] =
-    zipAll(Seq.range(0, windowSize).map(i => stream.drop(i).chunkN(windowSize, false)))
-
-  def parseStream(stream: Stream[Pure, Char], windowSize: Int): Option[String] = 
-    getChunks(stream, windowSize)
+  def parseStream(stream: Seq[Char], windowSize: Int): Option[String] =
+    stream
+      .sliding(windowSize,1)
       .zipWithIndex
       .filter((chunk, index) => chunk.to(Set).size==windowSize)
       .map(_._2)
-      .compile
-      .toList
+      .toSeq
       .headOption
       .map(_ + windowSize)
       .map(_.show)
@@ -52,9 +38,9 @@ object Problem6 extends AOC("2022", "6"):
   override def part1[F[_]](input: Stream[F, String])(using Async[F]): F[String] = 
     for {
       t <- input.compile.toList.map(_.toSeq)
-    } yield parseStream(Stream.emits(t.head.toCharArray), 4).get
+    } yield parseStream(t.head.toCharArray, 4).get
   override def part2[F[_]](input: Stream[F, String])(using Async[F]): F[Option[String]] =
     for {
       t <- input.compile.toList.map(_.toSeq)
-    } yield parseStream(Stream.emits(t.head.toCharArray), 14)
+    } yield parseStream(t.head.toCharArray, 14)
 
