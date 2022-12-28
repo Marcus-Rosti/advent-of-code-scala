@@ -7,9 +7,9 @@ ThisBuild / publishFullName := "Marcus Rosti"
 
 ThisBuild / scalaVersion := "3.2.1"
 
-val fs2Version = "3.3.0"
+val fs2Version = "3.4.0"
 val catsVersion = "2.9.0"
-val catsEffectVersion = "3.4.2"
+val catsEffectVersion = "3.4.3"
 val http4sVersion = "1.0.0-M37"
 
 lazy val `advent-of-code` = (project in file("."))

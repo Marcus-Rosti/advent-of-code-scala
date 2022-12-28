@@ -27,17 +27,16 @@ object Problem7 extends AOC("2022", "7"):
 
   val init: Map[Directory, Seq[FileObject]] = Map.empty
 
-  sealed trait FileObject(name: String) 
-  
-  final case class File(name: String, size: Long) extends FileObject(name)
+  sealed trait FileObject(name: String)
+
+  final case class File(name: String, size: Long)                    extends FileObject(name)
   final case class Directory(name: String, objects: Seq[FileObject]) extends FileObject(name)
 
-
   sealed trait Command
-  case class CD(directory: String) 
+  case class CD(directory: String)
   case object LS
 
-
-  override def part1[F[_]](input: Stream[F, String])(using Async[F]): F[String] = Async[F].pure("")
-  override def part2[F[_]](input: Stream[F, String])(using Async[F]): F[Option[String]] = Async[F].pure(Option.empty)
-
+  override def part1[F[_]](input: Stream[F, String])(using Async[F]): F[String] =
+    Async[F].pure("")
+  override def part2[F[_]](input: Stream[F, String])(using Async[F]): F[Option[String]] =
+    Async[F].pure(Option.empty)

@@ -35,7 +35,8 @@ object Main extends IOApp.Simple:
     Problem4(),
     Problem5(),
     Problem6(),
-    Problem7()
+    Problem7(),
+    Problem8()
   ).traverse(identity(_))
 
   override def run: IO[Unit] =
