@@ -22,24 +22,22 @@ import cats.effect.implicits.*
 import cats.effect.kernel.Async
 import fs2.*
 import cats.Applicative
-object Problem6 extends AOC("2022", "6"):
 
-  def parseStream(stream: Seq[Char], windowSize: Int): Option[String] =
-    stream
-      .sliding(windowSize, 1)
-      .zipWithIndex
-      .filter((chunk, index) => chunk.to(Set).size === windowSize)
-      .map(_._2)
-      .toSeq
-      .headOption
-      .map(_ + windowSize)
-      .map(_.show)
+object Problem7 extends AOC("2022", "7"):
 
-  override def part1[F[_]](input: Stream[F, String])(using Async[F]): F[String] =
-    for {
-      t <- input.compile.toList.map(_.toSeq)
-    } yield parseStream(t.head.toCharArray, 4).get
-  override def part2[F[_]](input: Stream[F, String])(using Async[F]): F[Option[String]] =
-    for {
-      t <- input.compile.toList.map(_.toSeq)
-    } yield parseStream(t.head.toCharArray, 14)
+  val init: Map[Directory, Seq[FileObject]] = Map.empty
+
+  sealed trait FileObject(name: String) 
+  
+  final case class File(name: String, size: Long) extends FileObject(name)
+  final case class Directory(name: String, objects: Seq[FileObject]) extends FileObject(name)
+
+
+  sealed trait Command
+  case class CD(directory: String) 
+  case object LS
+
+
+  override def part1[F[_]](input: Stream[F, String])(using Async[F]): F[String] = Async[F].pure("")
+  override def part2[F[_]](input: Stream[F, String])(using Async[F]): F[Option[String]] = Async[F].pure(Option.empty)
+
