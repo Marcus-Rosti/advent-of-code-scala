@@ -23,12 +23,13 @@ import cats.syntax.all.*
 import fs2.*
 import fs2.text
 import fs2.io.file.*
-import fs2.io.file.{Path as FPath}
+import fs2.io.file.Path as FPath
 import org.http4s.ember.client.*
 import org.http4s.*
 import org.http4s.client.*
-import org.http4s.client.middleware.{Logger as CLogger}
+import org.http4s.client.middleware.Logger as CLogger
 import org.http4s.implicits.*
+import org.typelevel.log4cats.LoggerFactory
 import org.typelevel.log4cats.slf4j.Slf4jLogger
 
 object ReadInput:
@@ -91,9 +92,8 @@ object ReadInput:
       .map(CLogger(logHeaders = false, logBody = false))
       .map(addTestHeader(token, _))
 
-  def apply[F[_]: Async: Env](year: String, day: String): Resource[F, Stream[F, String]] = {
+  def apply[F[_]: Async: Env](year: String, day: String): Resource[F, Stream[F, String]] =
     Resource
       .make(fileIfExists(year, day).recoverWith(_ => cacheAndLoadFile(year, day)))(_ =>
         Async[F].unit)
       .map(_.through(text.utf8.decode).through(text.lines).dropLast)
-  }

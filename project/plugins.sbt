@@ -6,8 +6,6 @@ ThisBuild / libraryDependencySchemes ++= Seq(
 // for stock functionality (no publication defaults)
 addSbtPlugin("com.codecommit" % "sbt-spiewak" % "0.23.0")
 
-addSbtPlugin("ch.epfl.scala" % "sbt-bloop" % "1.5.4-125-b611c20c")
-
 addSbtPlugin("com.github.sbt" % "sbt-native-packager" % "1.9.9")
 addSbtPlugin("org.scalameta" % "sbt-native-image" % "0.3.2")
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.4.6")

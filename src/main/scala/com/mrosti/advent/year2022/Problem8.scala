@@ -40,13 +40,12 @@ object Problem8 extends AOC("2022", "8"):
 
   // O((i*j)^2)
   def isVisible(maxX: Int, maxY: Int, grid: Grid)(x: Int, y: Int): Int = {
-    if (x == maxX || x == 0 || y == 0 || y == maxX) 
-      1
+    if (x == maxX || x == 0 || y == 0 || y == maxX) 1
     else
-      val left = (0 to (x-1)).map((_, y)).reverse
-      val right = ((x+1) to maxX).map((_, y))
-      val above = (0 to (y-1)).map((x, _)).reverse
-      val below = ((y+1) to maxY).map((x, _))
+      val left  = (0 to (x - 1)).map((_, y)).reverse
+      val right = ((x + 1) to maxX).map((_, y))
+      val above = (0 to (y - 1)).map((x, _)).reverse
+      val below = ((y + 1) to maxY).map((x, _))
 
       val height = grid.getOrElse((x, y), -1)
 
@@ -57,39 +56,36 @@ object Problem8 extends AOC("2022", "8"):
 
   def visibilityScore(maxX: Int, maxY: Int, grid: Grid)(x: Int, y: Int): Int = {
 
-      val left = (0 to (x-1)).map((_, y)).reverse
-      val right = ((x+1) to maxX).map((_, y))
-      val above = (0 to (y-1)).map((x, _)).reverse
-      val below = ((y+1) to maxY).map((x, _))
+    val left  = (0 to (x - 1)).map((_, y)).reverse
+    val right = ((x + 1) to maxX).map((_, y))
+    val above = (0 to (y - 1)).map((x, _)).reverse
+    val below = ((y + 1) to maxY).map((x, _))
 
-      val height = grid.get((x, y)).get
-      Seq(left, right, above, below)
-        .map( lst =>
-          val shorter = lst.takeWhile((i,j) => grid.get((i,j)).get < height).size
-          if shorter == lst.size
-          then shorter
-          else shorter +1
-        ).product
+    val height = grid.get((x, y)).get
+    Seq(left, right, above, below)
+      .map(lst =>
+        val shorter = lst.takeWhile((i, j) => grid.get((i, j)).get < height).size
+        if shorter == lst.size
+        then shorter
+        else shorter + 1
+      )
+      .product
   }
 
-  override def part1[F[_]](input: Stream[F, String])(using Async[F]): F[String] = readGrid(input).map {
-    grid =>
-      val (maxX, maxY) = grid.keySet.max
-      ((for {
-        x <- (0 to maxX)
-        y <- (0 to maxY)
-      } yield isVisible(maxX, maxY, grid)(x, y)
-      ).sum).show
-  }
-
-  override def part2[F[_]](input: Stream[F, String])(using Async[F]): F[Option[String]] =
-    readGrid(input).map {
-      grid =>
+  override def part1[F[_]](input: Stream[F, String])(using Async[F]): F[String] =
+    readGrid(input).map { grid =>
       val (maxX, maxY) = grid.keySet.max
       (for {
-        x <- (0 to maxX)
-        y <- (0 to maxY)
-      } yield visibilityScore(maxX, maxY, grid)(x, y)).max.show.some
+        x <- 0 to maxX
+        y <- 0 to maxY
+      } yield isVisible(maxX, maxY, grid)(x, y)).sum.show
     }
 
-
+  override def part2[F[_]](input: Stream[F, String])(using Async[F]): F[Option[String]] =
+    readGrid(input).map { grid =>
+      val (maxX, maxY) = grid.keySet.max
+      (for {
+        x <- 0 to maxX
+        y <- 0 to maxY
+      } yield visibilityScore(maxX, maxY, grid)(x, y)).max.show.some
+    }
