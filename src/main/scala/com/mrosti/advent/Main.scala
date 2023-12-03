@@ -23,20 +23,13 @@ import cats.effect.IO.*
 import cats.effect.std.Env
 
 import org.typelevel.log4cats.slf4j.*
-import com.mrosti.advent.year2022.*
+import com.mrosti.advent.year2023.*
 import scala.concurrent.duration
 
 object Main extends IOApp.Simple:
 
   val solutions: IO[Seq[Unit]] = Seq(
-    Problem1(),
-    Problem2(),
-    Problem3(),
-    Problem4(),
-    Problem5(),
-    Problem6(),
-    Problem7(),
-    Problem8()
+    Problem1()
   ).traverse(identity(_))
 
   override def run: IO[Unit] =
