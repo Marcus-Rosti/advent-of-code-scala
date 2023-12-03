@@ -29,7 +29,8 @@ import scala.concurrent.duration
 object Main extends IOApp.Simple:
 
   val solutions: IO[Seq[Unit]] = Seq(
-    Problem1()
+    Problem1(),
+    Problem2()
   ).traverse(identity(_))
 
   override def run: IO[Unit] =
